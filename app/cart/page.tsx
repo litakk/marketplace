@@ -70,7 +70,7 @@ const Cart: React.FC = () => {
                 <div className="flex gap-3">
                   <div>
                     <img
-                      className="w-[66px] h-[66px]"
+                      className="w-[86px] h-[86px]"
                       src={cart.variant.imageUrl || cart.product.imageUrl}
                       alt={cart.product.name}
                     />
@@ -79,6 +79,7 @@ const Cart: React.FC = () => {
                     <p className="font-medium text-[16px]">
                       {cart.product.name}
                     </p>
+                    <p>{cart.product.description}</p>
                     <p className="text-sm text-gray-500">
                       {cart.variant.color} {cart.variant.size}
                     </p>
