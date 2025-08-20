@@ -1,0 +1,123 @@
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                Int        @id @default(autoincrement()) // Уникальный ID
+  email             String     @unique // Email пользователя, уникальный
+  name              String? // Имя (опционально)
+  password          String? // Хэш пароля (если не OAuth)
+  role              Role       @default(USER) // Роль пользователя (USER или ADMIN)
+  isBlocked         Boolean    @default(false) // Флаг блокировки
+  emailVerified     Boolean    @default(false)
+  verificationToken String?
+  createdAt         DateTime   @default(now()) // Дата создания
+  updatedAt         DateTime   @updatedAt // Автообновляется при изменении
+  cartItems         CartItem[] // Связь с корзиной (один ко многим)
+  orders            Order[] // Связь с заказами (один ко многим)
+  sessions          Session[] // Связь с сессиями NextAuth
+}
+
+model Session {
+  id           Int      @id @default(autoincrement()) // Уникальный ID сессии
+  userId       Int // Внешний ключ на пользователя
+  expires      DateTime // Когда истекает сессия
+  sessionToken String   @unique // Токен для аутентификации
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Связь с пользователем, при удалении пользователя — каскадное удаление сессии
+}
+
+enum Role {
+  USER // Обычный пользователь
+  ADMIN // Администратор
+}
+
+model Category {
+  id       Int       @id @default(autoincrement()) // ID категории
+  name     String    @unique // Название категории (уникальное)
+  imageUrl String? // для добовление фото
+  products Product[] // Связь с товарами (один ко многим)
+}
+
+model Product {
+  id          Int     @id @default(autoincrement()) // Уникальный ID
+  name        String // Название товара
+  description String? // Описание (опционально)
+  imageUrl    String? // Ссылка на изображение (ufsUrl от UploadThing)
+  stock       Int     @default(0) // Остаток на складе
+  categoryId  Int // Внешний ключ на категорию
+
+  category  Category @relation(fields: [categoryId], references: [id])
+  createdAt DateTime @default(now()) // Дата создания
+  updatedAt DateTime @updatedAt // Автообновление при изменении
+
+  cartItems  CartItem[] // Связь с корзиной
+  orderItems OrderItem[] // Связь с заказами
+
+  variants ProductVariant[]
+}
+
+model CartItem {
+  id        Int     @id @default(autoincrement()) // ID записи корзины
+  userId    Int
+  productId Int
+  variantId Int?    // связь с ProductVariant
+  quantity  Int     @default(1)
+
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product         @relation(fields: [productId], references: [id])
+  variant   ProductVariant? @relation(fields: [variantId], references: [id]) // 🔥 добавляем связь
+}
+
+//Модель Order — Заказы
+model Order {
+  id         Int         @id @default(autoincrement()) // ID заказа
+  userId     Int // Кто сделал заказ
+  status     OrderStatus @default(NEW) // Статус заказа
+  createdAt  DateTime    @default(now()) // Когда создан
+  updatedAt  DateTime    @updatedAt // Обновление при изменении
+  totalPrice Float // Общая сумма заказа
+  user       User        @relation(fields: [userId], references: [id]) // Связь с пользователем
+  items      OrderItem[] // Связанные товары (многие к одному)
+}
+
+//📦 Модель OrderItem — Товары в заказе
+model OrderItem {
+  id        Int     @id @default(autoincrement()) // ID позиции
+  orderId   Int // ID заказа
+  productId Int // ID товара
+  quantity  Int // Кол-во товара в заказе
+  price     Float // Цена на момент заказа (фиксируется)
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade) // Связь с заказом
+  product   Product @relation(fields: [productId], references: [id]) // Связь с товаром
+}
+
+//📋 Enum OrderStatus — Статусы заказов
+enum OrderStatus {
+  NEW // Новый заказ
+  PROCESSING // Обрабатывается
+  COMPLETED // Завершен
+  CANCELLED // Отменен
+}
+
+model ProductVariant {
+  id        Int      @id @default(autoincrement())
+  label     String?  // универсальное название ("1 кг", "XL", "Красный") — если хочешь
+  color     String?  // цвет товара
+  size      String?  // размер товара
+  imageUrl  String?  // фотка варианта
+  price     Float
+  stock     Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int
+  cartItems CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
