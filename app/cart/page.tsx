@@ -1,7 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Item } from "@radix-ui/react-dropdown-menu";
 import { div } from "framer-motion/client";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { IoMdArrowBack } from "react-icons/io";
 import { IoTrashOutline } from "react-icons/io5";
@@ -34,7 +36,6 @@ const Cart: React.FC = () => {
       try {
         const res = await fetch("/api/getCart");
         const data = await res.json();
-        console.log(data);
         setCartProducts(data);
       } catch (error) {
         console.log(error);
@@ -51,23 +52,57 @@ const Cart: React.FC = () => {
     setTotalQuantity(totalQuantity - 1);
   }
 
+  const deleteProd = async (id: number) => {
+    try {
+      const res = await fetch(`/api/deleteCartProd/${id}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setCartProducts((prev) => prev.filter((item) => item.id !== id));
+      } else {
+        await res.json();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const updateQuantity = (id: number, type: "inc" | "dec") => {
+    setCartProducts((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              quantity:
+                type === "inc"
+                  ? item.quantity + 1
+                  : item.quantity > 1
+                  ? item.quantity - 1
+                  : 1, // минимально 1
+            }
+          : item
+      )
+    );
+  };
 
   const subtotal = cartProducts.reduce((total, item) => {
-    return total + item.variant.price * item.quantity
-  }, 0)
+    return total + item.variant.price * item.quantity;
+  }, 0);
 
-  const shipping = subtotal > 50 ? 0 : 5.99
-  const total = subtotal + shipping
+  const shipping = subtotal > 50 ? 0 : 5.99;
+  const total = subtotal + shipping;
 
   return (
-     <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Заголовок */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-6">
-            <button className="lg:hidden p-2 hover:bg-gray-100 rounded-full transition-colors">
-              <IoMdArrowBack size={24} />
-            </button>
+            <Link href={"/"}>
+              <button className="lg:hidden p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <IoMdArrowBack size={24} />
+              </button>
+            </Link>
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
               Shopping Cart
             </h1>
@@ -96,9 +131,11 @@ const Cart: React.FC = () => {
               <p className="text-gray-500 mb-6">
                 Looks like you haven't added any items to your cart yet.
               </p>
-              <Button className="bg-[#12BFEB] text-black hover:bg-[#0EA5D9]">
-                Continue Shopping
-              </Button>
+              <Link href={"/"}>
+                <Button className="bg-[#12BFEB] text-black hover:bg-[#0EA5D9]">
+                  Continue Shopping
+                </Button>
+              </Link>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -154,7 +191,10 @@ const Cart: React.FC = () => {
                               </div>
 
                               {/* Кнопка удаления */}
-                              <button className="ml-4 p-2 text-gray-400 hover:text-red-500 transition-colors">
+                              <button
+                                onClick={() => deleteProd(cart.id)}
+                                className="ml-4 p-2 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
+                              >
                                 <IoTrashOutline size={20} />
                               </button>
                             </div>
@@ -163,8 +203,8 @@ const Cart: React.FC = () => {
                             <div className="flex items-center justify-between mt-4">
                               <div className="flex items-center border border-gray-300 rounded-lg">
                                 <button
-                                  onClick={decQuantity}
-                                  className="px-3 py-2 text-gray-600 hover:bg-gray-100 transition-colors rounded-l-lg"
+                                  onClick={() => updateQuantity(cart.id, "dec")}
+                                  className="px-3 py-2 text-gray-600 hover:bg-gray-100 transition-colors rounded-l-lg cursor-pointer"
                                   disabled={cart.quantity <= 1}
                                 >
                                   -
@@ -173,8 +213,8 @@ const Cart: React.FC = () => {
                                   {cart.quantity}
                                 </span>
                                 <button
-                                  onClick={addQuantity}
-                                  className="px-3 py-2 text-gray-600 hover:bg-gray-100 transition-colors rounded-r-lg"
+                                  onClick={() => updateQuantity(cart.id, "inc")}
+                                  className="px-3 py-2 text-gray-600 hover:bg-gray-100 transition-colors rounded-r-lg cursor-pointer"
                                 >
                                   +
                                 </button>
