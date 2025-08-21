@@ -27,12 +27,10 @@ interface CartItem {
 const Cart: React.FC = () => {
   const [cartProducts, setCartProducts] = useState<CartItem[]>([]);
 
-  const [totalQuantity, setTotalQuantity] = useState(0);
-
   useEffect(() => {
     const getCartProducts = async () => {
       try {
-        const res = await fetch("/api/getCart");
+        const res = await fetch("/api/cart/");
         const data = await res.json();
         setCartProducts(data);
       } catch (error) {
@@ -42,17 +40,9 @@ const Cart: React.FC = () => {
     getCartProducts();
   }, []);
 
-  function addQuantity() {
-    setTotalQuantity(totalQuantity + 1);
-  }
-
-  function decQuantity() {
-    setTotalQuantity(totalQuantity - 1);
-  }
-
   const deleteProd = async (id: number) => {
     try {
-      const res = await fetch(`/api/deleteCartProd/${id}`, {
+      const res = await fetch(`/api/cart/deleteCartProd/${id}`, {
         method: "DELETE",
       });
       if (res.ok) {

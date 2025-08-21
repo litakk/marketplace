@@ -1,59 +1,34 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import prisma from "@/lib/prisma";
+import { authOptions } from "@/lib/auth"; // путь к твоим authOptions
+import prisma from "@/lib/prisma"; // твой Prisma клиент
 
-export async function POST(req: Request) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+export async function GET() {
+  const session = await getServerSession(authOptions);
 
-    const { productId, variantId, quantity } = await req.json();
-
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    // Ищем, есть ли уже такой товар в корзине
-    const existingItem = await prisma.cartItem.findFirst({
-      where: {
-        userId: user.id,
-        productId,
-        variantId: variantId,
-      },
-    });
-
-    let item;
-    if (existingItem) {
-      // Если есть — увеличиваем количество
-      item = await prisma.cartItem.update({
-        where: { id: existingItem.id },
-        data: { quantity: { increment: quantity ?? 1 } },
-      });
-    } else {
-      // Если нет — создаём новую запись
-      item = await prisma.cartItem.create({
-        data: {
-          userId: user.id,
-          productId,
-          variantId: variantId ?? null,
-          quantity: quantity ?? 1,
-        },
-      });
-    }
-
-    return NextResponse.json(item);
-  } catch (error) {
-    console.error("❌ Ошибка в /api/cart:", error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Server error" },
-      { status: 500 }
-    );
+  if (!session || !session.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  // получаем пользователя по email
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  // получаем корзину
+  const cartItems = await prisma.cartItem.findMany({
+    where: {
+      userId: user.id,
+    },
+    include: {
+      product: true,
+      variant: true,
+    },
+  });
+
+  return NextResponse.json(cartItems, { status: 200 });
 }

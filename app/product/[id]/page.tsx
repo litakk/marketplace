@@ -99,7 +99,7 @@ const page: React.FC = () => {
     try {
       if (!selectedVariantId) return;
 
-      const cart = await fetch("/api/cart", {
+      const cart = await fetch("/api/cart/addCartProd", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
