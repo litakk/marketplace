@@ -14,6 +14,7 @@ interface CartItem {
     name: string;
     imageUrl: string;
     description: string;
+    stock: number;
   };
   variant: {
     id: number;
@@ -21,6 +22,7 @@ interface CartItem {
     size: string | null;
     imageUrl: string | null;
     price: number;
+    stock: number;
   };
 }
 
@@ -33,6 +35,7 @@ const Cart: React.FC = () => {
         const res = await fetch("/api/cart/");
         const data = await res.json();
         setCartProducts(data);
+        console.log(data);
       } catch (error) {
         console.log(error);
       }
@@ -57,19 +60,19 @@ const Cart: React.FC = () => {
 
   const updateQuantity = (id: number, type: "inc" | "dec") => {
     setCartProducts((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              quantity:
-                type === "inc"
-                  ? item.quantity + 1
-                  : item.quantity > 1
-                  ? item.quantity - 1
-                  : 1, // минимально 1
-            }
-          : item
-      )
+      prev.map((item) => {
+        if (item.id !== id) return item;
+
+        const stock = item.variant ? item.variant.stock : item.product.stock;
+
+        return {
+          ...item,
+          quantity:
+            type === "inc"
+              ? Math.min(item.quantity + 1, stock) // не больше stock
+              : Math.max(item.quantity - 1, 1), // не меньше 1
+        };
+      })
     );
   };
 
