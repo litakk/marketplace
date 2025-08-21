@@ -1,8 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Item } from "@radix-ui/react-dropdown-menu";
-import { div } from "framer-motion/client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { IoMdArrowBack } from "react-icons/io";
