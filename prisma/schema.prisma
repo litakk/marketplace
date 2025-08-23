@@ -58,7 +58,6 @@ model Product {
   updatedAt DateTime @updatedAt // Автообновление при изменении
 
   cartItems  CartItem[] // Связь с корзиной
-  orderItems OrderItem[] // Связь с заказами
 
   variants ProductVariant[]
 }
@@ -88,14 +87,16 @@ model Order {
 }
 
 //📦 Модель OrderItem — Товары в заказе
+// 📦 OrderItem — позиция заказа
 model OrderItem {
-  id        Int     @id @default(autoincrement()) // ID позиции
-  orderId   Int // ID заказа
-  productId Int // ID товара
-  quantity  Int // Кол-во товара в заказе
-  price     Float // Цена на момент заказа (фиксируется)
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade) // Связь с заказом
-  product   Product @relation(fields: [productId], references: [id]) // Связь с товаром
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  variantId Int
+  quantity  Int
+  price     Float
+
+  order   Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
 }
 
 //📋 Enum OrderStatus — Статусы заказов
@@ -116,7 +117,9 @@ model ProductVariant {
   stock     Int
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId Int
+  
   cartItems CartItem[]
+  orderItems OrderItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

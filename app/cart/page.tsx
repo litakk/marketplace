@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { IoMdArrowBack } from "react-icons/io";
 import { IoTrashOutline } from "react-icons/io5";
@@ -28,6 +29,7 @@ interface CartItem {
 
 const Cart: React.FC = () => {
   const [cartProducts, setCartProducts] = useState<CartItem[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     const getCartProducts = async () => {
@@ -58,7 +60,7 @@ const Cart: React.FC = () => {
     }
   };
 
-  const updateQuantity = (id: number, type: "inc" | "dec") => {
+  const updateQuantity = async (id: number, type: "inc" | "dec") => {
     setCartProducts((prev) =>
       prev.map((item) => {
         if (item.id !== id) return item;
@@ -74,6 +76,28 @@ const Cart: React.FC = () => {
         };
       })
     );
+
+    const current = cartProducts.find((i) => i.id === id);
+    if (!current) return;
+    const stock = current.variant
+      ? current.variant.stock
+      : current.product.stock;
+    const nextQty =
+      type === "inc"
+        ? Math.min(current.quantity + 1, stock) // не больше stock
+        : Math.max(current.quantity - 1, 1); // не меньше 1
+
+    try {
+      await fetch(`/api/cart/updateQuantity`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, quantity: nextQty }),
+      });
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const subtotal = cartProducts.reduce((total, item) => {
@@ -82,6 +106,34 @@ const Cart: React.FC = () => {
 
   const shipping = subtotal > 50 ? 0 : 5.99;
   const total = subtotal + shipping;
+
+  const handleCheckout = async () => {
+    try {
+      const res = await fetch("/api/order/init", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          items: cartProducts.map((item) => ({
+            productId: item.product.id,
+            variantId: item.variant.id,
+            quantity: item.quantity,
+          })),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.orderId) {
+        router.push(`/checkout/${data.orderId}`);
+      } else {
+        console.error("Ошибка оформления заказа", data);
+      }
+    } catch (err) {
+      console.error("Ошибка при инициализации заказа", err);
+    }
+  };
 
   return (
     <div className="min-h-screen">
@@ -267,7 +319,10 @@ const Cart: React.FC = () => {
                     </div>
                   </div>
 
-                  <Button className="w-full mt-6 bg-[#12BFEB] text-black hover:bg-[#0EA5D9] h-12 text-base font-medium">
+                  <Button
+                    onClick={handleCheckout}
+                    className="w-full mt-6 bg-[#12BFEB] text-black hover:bg-[#0EA5D9] h-12 text-base font-medium"
+                  >
                     Proceed to Checkout
                   </Button>
 

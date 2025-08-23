@@ -39,7 +39,8 @@ const Products: React.FC = () => {
       try {
         const res = await fetch("/api/products");
         const data: Product[] = await res.json();
-
+        console.log(data);
+        
         const grouped = data.reduce((acc: Record<string, Product[]>, item) => {
           const cat = item.category?.name || "Без категории";
           if (!acc[cat]) acc[cat] = [];
