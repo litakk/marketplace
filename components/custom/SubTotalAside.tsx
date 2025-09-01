@@ -11,16 +11,18 @@ type SubTotalAsideProps = {
   order: { id: number; totalPrice: number };
   shipping: number;
   total: number;
+  handleSubmit: (
+    callback: (data: any) => void
+  ) => (e?: React.BaseSyntheticEvent) => void;
+  onSubmit: (data: any) => void;
 };
 
 const SubTotalAside: React.FC<SubTotalAsideProps> = ({
   order,
   shipping,
   total,
-}: {
-  order: { id: number; totalPrice: number };
-  shipping: number;
-  total: number;
+  handleSubmit,
+  onSubmit,
 }) => {
   const router = useRouter();
 
@@ -29,41 +31,59 @@ const SubTotalAside: React.FC<SubTotalAsideProps> = ({
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit = async () => {};
-
-  const handleConfirm = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleConfirm = async (data: any) => {
     setLoading(true);
-    try {
-      if (!stripe || !elements) return;
+    setErrorMessage(null);
 
-      const res = await fetch(`/api/order/confirm`, {
+    if (!stripe || !elements) {
+      setErrorMessage("Платёжная система недоступна");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // 1️⃣ Сохраняем адрес (без смены статуса)
+      const res = await fetch("/api/order/address", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId: order.id }),
+        body: JSON.stringify({
+          orderId: order.id,
+          address: {
+            fullName: data.fullName,
+            email: data.email,
+            phone: data.phone,
+            address: data.address,
+            city: data.city,
+            region: data.region,
+            postalCode: data.postalCode,
+          },
+        }),
       });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        const { error } = await stripe.confirmPayment({
-          elements,
-          confirmParams: {
-            return_url: `http://localhost:3000/checkout/success?orderId=${order.id}`,
-          },
-        });
-        if (error) setErrorMessage(error.message ?? "Ошибка оплаты");
-
-        /*                 router.push(`/checkout/success?orderId=${order.id}`);
-         */
-      } else {
-        console.error("Ошибка подтверждения заказа", data);
-        alert("Ошибка подтверждения заказа");
+      const saveData = await res.json();
+      if (!res.ok) {
+        setErrorMessage(saveData.error || "Ошибка сохранения адреса");
+        setLoading(false);
+        return;
       }
-      setLoading(false);
+
+      // 2️⃣ Подтверждаем оплату
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `http://localhost:3000/checkout/success?orderId=${order.id}`,
+        },
+        /*                 redirect: "if_required"
+         */
+      });
+
+      if (error) {
+        setErrorMessage(error.message ?? "Ошибка оплаты");
+        return;
+      }
     } catch (err) {
-      console.error("Ошибка сети", err);
+      console.error(err);
+      setErrorMessage("Ошибка сети");
     } finally {
       setLoading(false);
     }
@@ -123,9 +143,12 @@ const SubTotalAside: React.FC<SubTotalAsideProps> = ({
           </div>
           {errorMessage && <p className="text-red-600">{errorMessage}</p>}
           <Button
-            onClick={handleConfirm}
-            type="submit"
             disabled={!stripe || loading}
+            onClick={handleSubmit(async (data) => {
+              onSubmit(data);
+              await handleConfirm(data);
+            })}
+            type="button"
             className="
                         bg-blue-600 hover:bg-blue-700
                         text-white font-semibold

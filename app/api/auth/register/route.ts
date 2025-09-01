@@ -28,32 +28,32 @@ export async function POST(request: Request) {
     console.log("Client IP:", ip);
 
     // Проверка блокировки IP
-    const isBlocked = await redis.get(`block-ip:${ip}`);
-    if (isBlocked) {
-      return NextResponse.json(
-        { error: "Ваш IP временно заблокирован за подозрительную активность." },
-        { status: 403 }
-      );
-    }
+    // const isBlocked = await redis.get(`block-ip:${ip}`);
+    // if (isBlocked) {
+    //   return NextResponse.json(
+    //     { error: "Ваш IP временно заблокирован за подозрительную активность." },
+    //     { status: 403 }
+    //   );
+    // }
 
     // Rate limiting
-    const { success } = await ratelimit.limit(ip);
-    if (!success) {
-      const key = `violations:${ip}`;
-      const violations = await redis.incr(key);
-      if (violations === 1) await redis.expire(key, 600);
-      if (violations >= 5) {
-        await redis.set(`block-ip:${ip}`, "1", { ex: 3600 });
-        return NextResponse.json(
-          { error: "Ваш IP заблокирован на 1 час." },
-          { status: 403 }
-        );
-      }
-      return NextResponse.json(
-        { error: "Слишком много запросов. Попробуйте позже." },
-        { status: 429 }
-      );
-    }
+    // const { success } = await ratelimit.limit(ip);
+    // if (!success) {
+    //   const key = `violations:${ip}`;
+    //   const violations = await redis.incr(key);
+    //   if (violations === 1) await redis.expire(key, 600);
+    //   if (violations >= 5) {
+    //     await redis.set(`block-ip:${ip}`, "1", { ex: 3600 });
+    //     return NextResponse.json(
+    //       { error: "Ваш IP заблокирован на 1 час." },
+    //       { status: 403 }
+    //     );
+    //   }
+    //   return NextResponse.json(
+    //     { error: "Слишком много запросов. Попробуйте позже." },
+    //     { status: 429 }
+    //   );
+    // }
 
     // Парсим тело запроса
     const { email, password, name } = await request.json();

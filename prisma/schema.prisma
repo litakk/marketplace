@@ -84,6 +84,8 @@ model Order {
   totalPrice Float // Общая сумма заказа
   user       User        @relation(fields: [userId], references: [id]) // Связь с пользователем
   items      OrderItem[] // Связанные товары (многие к одному)
+
+  address OrderAddress?
 }
 
 //📦 Модель OrderItem — Товары в заказе
@@ -106,6 +108,23 @@ enum OrderStatus {
   COMPLETED // Завершен
   CANCELLED // Отменен
 }
+
+
+model OrderAddress {
+  id      Int @id @default(autoincrement())
+  orderId Int @unique
+
+  fullName   String
+  email      String
+  phone      String?
+  address    String
+  city       String
+  region     String
+  postalCode String?
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
 
 model ProductVariant {
   id        Int      @id @default(autoincrement())

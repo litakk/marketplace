@@ -112,8 +112,15 @@ export default function OrderGoods({
   const [amount] = useState<number>(order.totalPrice + shipping);
   const [clientSecret, setClientSecret] = useState<string>("");
 
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit = (data: any) => {
+    console.log(data);
+
     if (!agree) {
       toast.warn("Поставьте галочку согласия с условиями");
       return;
@@ -149,7 +156,7 @@ export default function OrderGoods({
         <div className="pt-6 px-3 md:px-6 lg:px-8">
           <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 pb-10">
             {/* Левая часть */}
-            <form onSubmit={onSubmit} className="lg:col-span-2 space-y-6">
+            <form /* onSubmit={onSubmit} */ className="lg:col-span-2 space-y-6">
               {/* Контакты */}
               <section className="rounded-2xl border border-neutral-200 bg-white/60 backdrop-blur p-5 shadow-sm">
                 <h2 className="text-lg font-semibold text-neutral-900 mb-4">
@@ -161,10 +168,11 @@ export default function OrderGoods({
                       Email
                     </label>
                     <Input
+                      {...register("email", { required: "Email обезателный" })}
                       type="email"
                       placeholder="you@example.com"
                       autoComplete="email"
-                      required
+                      className={errors.email && "border-red-700"}
                     />
                   </div>
                   <div className="md:col-span-2">
@@ -172,9 +180,12 @@ export default function OrderGoods({
                       Телефон (опционально)
                     </label>
                     <Input
+                      {...register("phone", {
+                        required: "Телефоон обезателный",
+                      })}
                       type="tel"
                       placeholder="+1 415 555 0000"
-                      autoComplete="tel"
+                      className={errors.phone && "border-red-700"}
                     />
                   </div>
                 </div>
@@ -191,9 +202,12 @@ export default function OrderGoods({
                       Полное имя
                     </label>
                     <Input
+                      {...register("fullName", {
+                        required: "Телефоон обезателный",
+                      })}
                       placeholder="Feruz Aliev"
-                      autoComplete="name"
                       required
+                      className={errors.fullName && "border-red-700"}
                     />
                   </div>
 
@@ -202,6 +216,9 @@ export default function OrderGoods({
                       Страна
                     </label>
                     <select
+                      {...register("country", {
+                        required: "Страна обязательна",
+                      })}
                       className="w-full h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm"
                       value={country}
                       onChange={(e) => setCountry(e.currentTarget.value)}
@@ -216,6 +233,9 @@ export default function OrderGoods({
                         Штат (State)
                       </label>
                       <select
+                        {...register("region", {
+                          required: "Выберите область",
+                        })}
                         className="w-full h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm"
                         autoComplete="address-level1"
                         required
@@ -234,6 +254,9 @@ export default function OrderGoods({
                         Область{" "}
                       </label>
                       <select
+                        {...register("region", {
+                          required: "Выберите область",
+                        })}
                         className="w-full h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm"
                         autoComplete="address-level1"
                         required
@@ -252,9 +275,11 @@ export default function OrderGoods({
                       Адрес, строка 1
                     </label>
                     <Input
-                      placeholder="Amit Temur ko`chasi "
-                      autoComplete="address-line1"
-                      required
+                      {...register("address", {
+                        required: "Телефоон обезателный",
+                      })}
+                      placeholder="Amit Temur ko`chasi"
+                      className={errors.address && "border-red-700"}
                     />
                   </div>
 
@@ -263,8 +288,11 @@ export default function OrderGoods({
                       Адрес, строка 2 (опц.)
                     </label>
                     <Input
+                      {...register("address", {
+                        required: "Телефоон обезателный",
+                      })}
+                      className={errors.address && "border-red-700"}
                       placeholder="Amit Temur ko`chasi 32-B"
-                      autoComplete="address-line2"
                     />
                   </div>
 
@@ -273,9 +301,11 @@ export default function OrderGoods({
                       Город
                     </label>
                     <Input
+                      {...register("city", {
+                        required: "Телефоон обезателный",
+                      })}
+                      className={errors.city && "border-red-700"}
                       placeholder="San Francisco"
-                      autoComplete="address-level2"
-                      required
                     />
                   </div>
 
@@ -284,9 +314,11 @@ export default function OrderGoods({
                       Почтовый индекс
                     </label>
                     <Input
+                      {...register("postalCode", {
+                        required: "postalCode обезателный",
+                      })}
+                      className={errors.postalCode && "border-red-700"}
                       placeholder="94107"
-                      autoComplete="postal-code"
-                      required
                     />
                   </div>
                 </div>
@@ -436,7 +468,13 @@ export default function OrderGoods({
             </form>
 
             {/* Правая колонка — сводка */}
-            <SubTotalAside order={order} shipping={shipping} total={total} />
+            <SubTotalAside
+              handleSubmit={handleSubmit}
+              onSubmit={onSubmit}
+              order={order}
+              shipping={shipping}
+              total={total}
+            />
           </div>
         </div>
       </div>
