@@ -11,7 +11,6 @@ export default function Form() {
 
   const route = useRouter();
 
-
   // const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
   //   e.preventDefault();
   //   const formData = new FormData(e.currentTarget);
@@ -28,7 +27,6 @@ export default function Form() {
   //   console.log("signIn result:", { res });
   // };
 
-  
   const {
     register,
     handleSubmit,
@@ -54,40 +52,91 @@ export default function Form() {
           setLoginError("Incorrect login or password");
         }
       })}
-      className="flex flex-col gap-4 w-full max-w-sm mx-auto p-4 border rounded-xl shadow-md"
+      className="space-y-7"
     >
-      <input
-        {...register("email", { required: "Enter your email" })}
-        type="email"
-        className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-        placeholder="Enter email"
-      />
-      {errors.email && (
-        <p className="text-red-500">Incorrect Email, try again</p>
+      <div className="grid grid-cols-2 gap-3">
+        <button
+          type="button"
+          onClick={() => signIn("google")}
+          className="h-11 rounded-lg border border-black/10 bg-white text-gray-900 hover:bg-gray-50 transition dark:border-white/10 dark:bg-neutral-900 dark:text-white"
+        >
+          Google
+        </button>
+        <button
+          type="button"
+          className="h-11 rounded-lg border border-black/10 bg-black text-white hover:bg-neutral-900 transition dark:bg-white dark:text-black dark:hover:bg-neutral-100"
+        >
+          Apple
+        </button>
+      </div>
+
+      <div className="relative text-center">
+        <span className="px-3 text-xs text-muted-foreground bg-card relative z-10">
+          или продолжить с email
+        </span>
+        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 border-t border-black/10 dark:border-white/10" />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium">Email</label>
+        <input
+          {...register("email", { required: "Enter your email" })}
+          type="email"
+          className="w-full bg-transparent border-0 border-b border-black/15 focus:border-black/80 dark:border-white/20 dark:focus:border-white/80 h-11 px-0 outline-none transition"
+          placeholder="you@example.com"
+          aria-invalid={errors.email ? "true" : "false"}
+        />
+        {errors.email && (
+          <p className="text-sm text-red-600">Incorrect Email, try again</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <label className="block text-sm font-medium">Пароль</label>
+          <button
+            type="button"
+            className="text-xs text-primary hover:underline"
+          >
+            Забыли пароль?
+          </button>
+        </div>
+        <input
+          {...register("password", { required: "Enter your password" })}
+          type="password"
+          className="w-full bg-transparent border-0 border-b border-black/15 focus:border-black/80 dark:border-white/20 dark:focus:border-white/80 h-11 px-0 outline-none transition"
+          placeholder="••••••••"
+          aria-invalid={errors.password ? "true" : "false"}
+        />
+        {errors.password && (
+          <p className="text-sm text-red-600">Incorrect Password, try again</p>
+        )}
+      </div>
+
+      <div className="flex items-center justify-between">
+        <label className="inline-flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            className="h-4 w-4 rounded border-black/20 dark:border-white/30"
+          />
+          Запомнить меня
+        </label>
+      </div>
+
+      {loginError && (
+        <div className="rounded-md border border-red-300/60 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
+          {loginError}
+        </div>
       )}
-      <input
-        {...register("password", { required: "Enter your password" })}
-        type="password"
-        className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-        placeholder="Введите текст"
-      />
-      {errors.password && (
-        <p className="text-red-500">Incorrect Password, try again</p>
-      )}
-      {loginError && <p className="text-red-500">{loginError}</p>}
-      <button
-        type="submit"
-        className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition"
-      >
-        Войти
-      </button>
-      <button
-        type="button"
-        onClick={() => signIn("google")}
-        className="bg-red-500 text-white p-2 rounded-md hover:bg-red-600 transition"
-      >
-        Войти через Google
-      </button>
+
+      <div className="grid gap-3">
+        <button
+          type="submit"
+          className="h-11 rounded-none bg-black text-white font-medium tracking-wide hover:bg-neutral-900 transition dark:bg-white dark:text-black"
+        >
+          Войти
+        </button>
+      </div>
     </form>
   );
 }
