@@ -23,7 +23,7 @@ const Hero: React.FC = () => {
     <div className="relative">
       {swiperReady && (
         <Swiper
-          spaceBetween={30}
+          spaceBetween={0}
           centeredSlides={true}
           autoplay={{
             delay: 2500,
@@ -37,20 +37,20 @@ const Hero: React.FC = () => {
             nextEl: nextRef.current!,
           }}
           modules={[Autoplay, Pagination, Navigation]}
-          className="mySwiper h-[50vh] mt-5 rounded-xl cursor-grab lg:h-[70vh]"
+          className="mySwiper h-[60vh] lg:h-[75vh] mt-6 cursor-grab"
         >
           <SwiperSlide className="relative">
-            <div className="absolute z-10 bg-[#0000003d] w-full h-full flex flex-col justify-end lg:pl-10 lg:pb-25 p-4 pb-10 ">
-              <div className="text-start">
-                <h2 className="font-extrabold lg:font-black text-xl lg:text-[40px] text-white lexend_font">
+            <div className="absolute inset-0 z-10 bg-black/30 flex flex-col justify-end lg:pl-16 p-6 pb-12">
+              <div className="text-start max-w-[680px]">
+                <h2 className="font-medium tracking-[0.22em] uppercase text-white text-lg lg:text-[34px]">
                   НОВАЯ КОЛЛЕКЦИЯ УЖЕ ЗДЕСЬ
                 </h2>
-                <p className="text-sm font-medium lg:text-[18px] text-white lexend_font lg:font-normal leading-4.5  lg:leading-6 mt-1 lg:mt-2">
+                <p className="text-[12px] lg:text-[16px] text-white/80 leading-5 lg:leading-7 mt-2">
                   Стиль, вдохновлённый настоящим. Мужская и женская одежда на
                   каждый день и особые случаи. <br />
                   Почувствуй себя в центре внимания.
                 </p>
-                <button className="bg-[#5EEB42] text-sm lg:text-[16px] text-black font-bold rounded-3xl border-0 lg:py-3 lg:px-5 cursor-pointer btn_animate transition-all lg:mt-7 mt-4 p-3">
+                <button className="inline-flex items-center rounded-full bg-white/90 text-black hover:bg-white px-6 py-3 mt-5 text-[12px] tracking-[0.18em] uppercase transition-colors">
                   Смотреть коллекцию
                 </button>
               </div>
@@ -63,19 +63,19 @@ const Hero: React.FC = () => {
           </SwiperSlide>
 
           <SwiperSlide className="relative">
-            <div className="absolute z-10 bg-[#0000003d] w-full h-full flex flex-col justify-end lg:pl-10 lg:pb-25 p-4 pb-10 ">
-              <div className="text-start">
-                <h2 className="font-extrabold lg:font-black text-xl lg:text-[40px] text-white lexend_font">
+            <div className="absolute inset-0 z-10 bg-black/30 flex flex-col justify-end lg:pl-16 p-6 pb-12">
+              <div className="text-start max-w-[680px]">
+                <h2 className="font-medium tracking-[0.22em] uppercase text-white text-lg lg:text-[34px]">
                   БАЗА, КОТОРАЯ РЕШАЕТ ВСЁ
                 </h2>
-                <p className="text-sm font-medium lg:text-[18px] text-white lexend_font lg:font-normal leading-4.5  lg:leading-6 mt-1 lg:mt-2">
+                <p className="text-[12px] lg:text-[16px] text-white/80 leading-5 lg:leading-7 mt-2">
                   Футболки, джинсы, худи и не только — всё, что нужно каждый
                   день. <br />
                   Комфорт, стиль и качество без компромиссов.
                   <br />
                   Погрузись в мир подводной красоты
                 </p>
-                <button className="bg-[#5EEB42] text-sm lg:text-[16px] text-black font-bold rounded-3xl border-0 lg:py-3 lg:px-5 cursor-pointer btn_animate transition-all lg:mt-7 mt-4 p-3">
+                <button className="inline-flex items-center rounded-full bg-white/90 text-black hover:bg-white px-6 py-3 mt-5 text-[12px] tracking-[0.18em] uppercase transition-colors">
                   Перейти в базу
                 </button>
               </div>
@@ -88,17 +88,17 @@ const Hero: React.FC = () => {
           </SwiperSlide>
 
           <SwiperSlide className="relative">
-            <div className="absolute z-10 bg-[#0000003d] w-full h-full flex flex-col justify-end lg:pl-10 lg:pb-25 p-4 pb-10 ">
-              <div className="text-start">
-                <h2 className="font-extrabold lg:font-black text-xl lg:text-[40px] text-white lexend_font">
+            <div className="absolute inset-0 z-10 bg-black/30 flex flex-col justify-end lg:pl-16 p-6 pb-12">
+              <div className="text-start max-w-[680px]">
+                <h2 className="font-medium tracking-[0.22em] uppercase text-white text-lg lg:text-[34px]">
                   СТИЛЬ В ЛЮБУЮ ПОГОДУ
                 </h2>
-                <p className="text-sm font-medium lg:text-[18px] text-white lexend_font lg:font-normal leading-4.5  lg:leading-6 mt-1 lg:mt-2">
+                <p className="text-[12px] lg:text-[16px] text-white/80 leading-5 lg:leading-7 mt-2">
                   Куртки, пальто и жилеты — тепло и тренд в каждой детали.
                   <br />
                   Защита от холода, созданная со вкусом.
                 </p>
-                <button className="bg-[#5EEB42] text-sm lg:text-[16px] text-black font-bold rounded-3xl border-0 lg:py-3 lg:px-5 cursor-pointer btn_animate transition-all lg:mt-7 mt-4 p-3">
+                <button className="inline-flex items-center rounded-full bg-white/90 text-black hover:bg-white px-6 py-3 mt-5 text-[12px] tracking-[0.18em] uppercase transition-colors">
                   Выбрать верх
                 </button>
               </div>
@@ -111,17 +111,17 @@ const Hero: React.FC = () => {
           </SwiperSlide>
 
           <SwiperSlide className="relative">
-            <div className="absolute z-10 bg-[#0000003d] w-full h-full flex flex-col justify-end lg:pl-10 lg:pb-25 p-4 pb-10 ">
-              <div className="text-start">
-                <h2 className="font-extrabold lg:font-black text-xl lg:text-[40px] text-white lexend_font">
+            <div className="absolute inset-0 z-10 bg-black/30 flex flex-col justify-end lg:pl-16 p-6 pb-12">
+              <div className="text-start max-w-[680px]">
+                <h2 className="font-medium tracking-[0.22em] uppercase text-white text-lg lg:text-[34px]">
                   ТО, ЧТО ДОПОЛНЯЕТ
                 </h2>
-                <p className="text-sm font-medium lg:text-[18px] text-white lexend_font lg:font-normal leading-4.5  lg:leading-6 mt-1 lg:mt-2">
+                <p className="text-[12px] lg:text-[16px] text-white/80 leading-5 lg:leading-7 mt-2">
                   Сумки, очки, головные уборы — детали, которые делают образ.
                   <br />
                   Создай стиль до мелочей.
                 </p>
-                <button className="bg-[#5EEB42] text-sm lg:text-[16px] text-black font-bold rounded-3xl border-0 lg:py-3 lg:px-5 cursor-pointer btn_animate transition-all lg:mt-7 mt-4 p-3">
+                <button className="inline-flex items-center rounded-full bg-white/90 text-black hover:bg-white px-6 py-3 mt-5 text-[12px] tracking-[0.18em] uppercase transition-colors">
                   К аксессуарам
                 </button>
               </div>
@@ -134,17 +134,17 @@ const Hero: React.FC = () => {
           </SwiperSlide>
 
           <SwiperSlide className="relative">
-            <div className="absolute z-10 bg-[#0000003d] w-full h-full flex flex-col justify-end lg:pl-10 lg:pb-25 p-4 pb-10 ">
-              <div className="text-start">
-                <h2 className="font-extrabold lg:font-black text-xl lg:text-[40px] text-white lexend_font">
+            <div className="absolute inset-0 z-10 bg-black/30 flex flex-col justify-end lg:pl-16 p-6 pb-12">
+              <div className="text-start max-w-[680px]">
+                <h2 className="font-medium tracking-[0.22em] uppercase text-white text-lg lg:text-[34px]">
                   СКИДКИ ДО -50%
                 </h2>
-                <p className="text-sm font-medium lg:text-[18px] text-white lexend_font lg:font-normal leading-4.5  lg:leading-6 mt-1 lg:mt-2">
+                <p className="text-[12px] lg:text-[16px] text-white/80 leading-5 lg:leading-7 mt-2">
                   Лучшее время обновить гардероб — сезонная распродажа уже
                   началась! <br />
                   Лови стиль по выгодным ценам.
                 </p>
-                <button className="bg-[#5EEB42] text-sm lg:text-[16px] text-black font-bold rounded-3xl border-0 lg:py-3 lg:px-5 cursor-pointer btn_animate transition-all lg:mt-7 mt-4 p-3">
+                <button className="inline-flex items-center rounded-full bg-white/90 text-black hover:bg-white px-6 py-3 mt-5 text-[12px] tracking-[0.18em] uppercase transition-colors">
                   Смотреть скидки
                 </button>
               </div>
@@ -159,18 +159,18 @@ const Hero: React.FC = () => {
       )}
 
       {/* Кастомные кнопки */}
-      <div className="absolute top-1/2 -translate-y-1/2 z-20 flex justify-between w-full px-2 pointer-events-none">
+      <div className="absolute top-1/2 -translate-y-1/2 z-20 flex justify-between w-full px-4 pointer-events-none">
         <button
           ref={prevRef}
-          className="hidden lg:flex bg-[#F2590D] rotate-180 w-8 h-8 rounded-full  justify-center items-center cursor-pointer hover:bg-[#f2590da6] pointer-events-auto"
+          className="hidden lg:flex bg-white/90 rotate-180 w-10 h-10 rounded-full justify-center items-center cursor-pointer hover:bg-white pointer-events-auto shadow-sm"
         >
-          <FaArrowRight color="white" />
+          <FaArrowRight color="black" />
         </button>
         <button
           ref={nextRef}
-          className="hidden lg:flex bg-[#F2590D] w-8 h-8 rounded-full  justify-center items-center cursor-pointer hover:bg-[#f2590da6] pointer-events-auto"
+          className="hidden lg:flex bg-white/90 w-10 h-10 rounded-full justify-center items-center cursor-pointer hover:bg-white pointer-events-auto shadow-sm"
         >
-          <FaArrowRight color="white" />
+          <FaArrowRight color="black" />
         </button>
       </div>
     </div>

@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { Tag } from "lucide-react";
 import { Input } from "../ui/input";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useElements, useStripe } from "@stripe/react-stripe-js";
 
@@ -24,8 +23,6 @@ const SubTotalAside: React.FC<SubTotalAsideProps> = ({
   handleSubmit,
   onSubmit,
 }) => {
-  const router = useRouter();
-
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -34,55 +31,19 @@ const SubTotalAside: React.FC<SubTotalAsideProps> = ({
   const handleConfirm = async (data: any) => {
     setLoading(true);
     setErrorMessage(null);
-
     if (!stripe || !elements) {
       setErrorMessage("Платёжная система недоступна");
       setLoading(false);
       return;
     }
-
     try {
-      // 1️⃣ Сохраняем адрес (без смены статуса)
-      const res = await fetch("/api/order/address", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          orderId: order.id,
-          address: {
-            fullName: data.fullName,
-            email: data.email,
-            phone: data.phone,
-            address: data.address,
-            city: data.city,
-            region: data.region,
-            postalCode: data.postalCode,
-          },
-        }),
-      });
-
-      const saveData = await res.json();
-      if (!res.ok) {
-        setErrorMessage(saveData.error || "Ошибка сохранения адреса");
-        setLoading(false);
-        return;
-      }
-
-      // 2️⃣ Подтверждаем оплату
-      const { error } = await stripe.confirmPayment({
+      await stripe.confirmPayment({
         elements,
         confirmParams: {
           return_url: `http://localhost:3000/checkout/success?orderId=${order.id}`,
         },
-        /*                 redirect: "if_required"
-         */
       });
-
-      if (error) {
-        setErrorMessage(error.message ?? "Ошибка оплаты");
-        return;
-      }
-    } catch (err) {
-      console.error(err);
+    } catch {
       setErrorMessage("Ошибка сети");
     } finally {
       setLoading(false);
@@ -90,85 +51,60 @@ const SubTotalAside: React.FC<SubTotalAsideProps> = ({
   };
 
   return (
-    <>
-      <aside className="lg:col-span-1">
-        <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-5 shadow-sm sticky top-6">
-          <h3 className="text-base font-semibold text-neutral-900 mb-3">
-            Сводка заказа
-          </h3>
+    <aside className="lg:col-span-1">
+      <div className="rounded-2xl border border-gray-200 bg-white shadow-md p-6 sticky top-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          Сводка заказа
+        </h3>
 
-          {/* Предметы — макет */}
-          <div className="space-y-3 mb-4">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-neutral-600">Товары:</span>
-              <span className="font-medium">
-                {order?.totalPrice.toLocaleString("ru-RU")}
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-neutral-600">Доставка:</span>
-              <span className="font-medium">
-                {shipping.toLocaleString("ru-RU")}
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-neutral-600">Скидка</span>
-              <span className="font-medium">0</span>
-            </div>
-            <div className="h-px bg-neutral-200" />
-            <div className="flex items-center justify-between text-base">
-              <span className="font-semibold">Итого:</span>
-              <span className="font-semibold text-[#8A6E61]">
-                {(order.totalPrice + shipping).toLocaleString("ru-RU")} сум
-              </span>
-            </div>
+        <div className="space-y-3 mb-6">
+          <div className="flex justify-between text-sm text-gray-600">
+            <span>Товары</span>
+            <span className="font-medium">
+              {order.totalPrice.toLocaleString("ru-RU")} USD
+            </span>
           </div>
-
-          {/* Промокод */}
-          <div className="mb-4">
-            <label className="block text-sm text-neutral-600 mb-1">
-              Промокод
-            </label>
-            <div className="flex gap-2">
-              <Input placeholder="SAVE10" />
-              <Button
-                type="button"
-                variant="secondary"
-                className="whitespace-nowrap"
-              >
-                <Tag className="h-4 w-4 mr-1" />
-                Применить
-              </Button>
-            </div>
+          <div className="flex justify-between text-sm text-gray-600">
+            <span>Доставка</span>
+            <span className="font-medium">
+              {shipping.toLocaleString("ru-RU")} USD
+            </span>
           </div>
-          {errorMessage && <p className="text-red-600">{errorMessage}</p>}
-          <Button
-            disabled={!stripe || loading}
-            onClick={handleSubmit(async (data) => {
-              onSubmit(data);
-              await handleConfirm(data);
-            })}
-            type="button"
-            className="
-                        bg-blue-600 hover:bg-blue-700
-                        text-white font-semibold
-                        py-2 px-6 rounded-lg
-                        shadow-md hover:shadow-lg
-                        transition duration-300 ease-in-out
-                        disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
-            {!loading
-              ? `Оплатить ${order.totalPrice + shipping}`
-              : "Процесс..."}
-          </Button>
-
-          <p className="mt-3 text-xs text-neutral-500">
-            Нажимая “Оплатить”, вы соглашаетесь с условиями сервиса. Списание
-            произойдёт при успешной авторизации платежа.
-          </p>
+          <div className="h-px bg-gray-200" /> 
+          <div className="flex justify-between text-base font-semibold">
+            <span>Итого</span>
+            <span className="text-blue-600">
+              {(order.totalPrice + shipping).toLocaleString("ru-RU")} USD
+            </span>
+          </div>
         </div>
-      </aside>
-    </>
+
+        {errorMessage && (
+          <p className="text-red-600 text-sm mb-2">{errorMessage}</p>
+        )}
+
+        <Button
+          disabled={!stripe || loading}
+          onClick={handleSubmit(async (data) => {
+            onSubmit(data);
+            await handleConfirm(data);
+          })}
+          type="button"
+          className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-md transition disabled:bg-gray-400"
+        >
+          {!loading
+            ? `Оплатить ${(order.totalPrice + shipping).toLocaleString(
+                "ru-RU"
+              )} USD`
+            : "Процесс..."}
+        </Button>
+
+        <p className="mt-3 text-xs text-gray-500">
+          Нажимая “Оплатить”, вы соглашаетесь с условиями сервиса и политикой
+          конфиденциальности
+        </p>
+      </div>
+    </aside>
   );
 };
 

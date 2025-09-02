@@ -40,7 +40,7 @@ const Products: React.FC = () => {
         const res = await fetch("/api/products");
         const data: Product[] = await res.json();
         console.log(data);
-        
+
         const grouped = data.reduce((acc: Record<string, Product[]>, item) => {
           const cat = item.category?.name || "Без категории";
           if (!acc[cat]) acc[cat] = [];
@@ -59,14 +59,14 @@ const Products: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {Array.from({ length: 6 }).map((_, i) => {
           return (
             <div key={i} className="">
-              <Skeleton className="h-[125px] md:h-[312px] lg:h-[309px] xl:h-[320px] w-full rounded-xl" />
-              <div className="space-y-2 mt-2">
-                <Skeleton className="h-4 w-full max-w-[250px]" />
-                <Skeleton className="h-4 w-full max-w-[200px]" />
+              <Skeleton className="h-[125px] md:h-[312px] lg:h-[309px] xl:h-[320px] w-full rounded-none" />
+              <div className="space-y-2 mt-4">
+                <Skeleton className="h-3 w-full max-w-[240px]" />
+                <Skeleton className="h-3 w-full max-w-[200px]" />
               </div>
             </div>
           );
@@ -78,9 +78,11 @@ const Products: React.FC = () => {
   return (
     <>
       {Object.entries(groupedProducts).map(([category, products]) => (
-        <div key={category} className="mb-8">
-          <p className="font-bold text-[22px] mb-2">{category}</p>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div key={category} className="mb-24">
+          <p className="text-center text-[14px] md:text-[16px] tracking-[0.28em] uppercase text-neutral-900 mb-10">
+            {category}
+          </p>
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {products.slice(0, countCart[category] ?? 5).map((product) => (
               <motion.div
                 key={product.id}
@@ -89,25 +91,31 @@ const Products: React.FC = () => {
                 viewport={{ once: true, amount: 0.1 }}
                 transition={{ duration: 0.5, delay: product.id * 0.01 }}
               >
-                <div key={product.id}>
-                  <img
-                    src={product.imageUrl}
-                    alt={product.name}
-                    className="w-full h-[240px] lg:h-[366px] object-cover rounded-[8px]"
-                  />
-                  <p className="font-medium text-[16px] text-[#171212] mt-1">
-                    {product.name}
-                  </p>
-                  <div className="justify-between">
-                    <p className="font-normal text-[14px] text-[#8A6E61] mb-2 mt-1">
-                      ${product.price}
+                <div
+                  key={product.id}
+                  className="group bg-white rounded-none border border-neutral-200 hover:shadow-sm transition-shadow duration-300"
+                >
+                  <div className="overflow-hidden">
+                    <img
+                      src={product.imageUrl}
+                      alt={product.name}
+                      className="w-full aspect-[3/4] object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    />
+                  </div>
+                  <div className="p-3">
+                    <p className="text-[13px] md:text-[14px] tracking-wide text-neutral-900">
+                      {product.name}
                     </p>
-                    <Link href={`/product/${product.id}`}>
-                      <Button className="flex items-center gap-1 md:gap-2 bg-[#8A6E61] text-white hover:bg-[#6c5247] md:text-[16px] md:px-5 md:py-5 rounded-lg transition duration-700 cursor-pointer">
-                        Перейти к товару
-                        <ArrowRight size={18} />
-                      </Button>
-                    </Link>
+                    <div className="mt-2 flex items-center justify-between">
+                      <p className="text-[13px] md:text-[14px] text-neutral-600">
+                        ${product.price}
+                      </p>
+                      <Link href={`/product/${product.id}`}>
+                        <Button className="cursor-pointer h-9 px-5 rounded-full bg-black text-white hover:bg-neutral-900 text-[12px] tracking-wider uppercase">
+                          Подробнее
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -116,7 +124,7 @@ const Products: React.FC = () => {
           <div className="text-center">
             <Button
               onClick={() => showMore(category)}
-              className="mt-10 border border-[#8A6E61] bg-[#8A6E61]/5 text-[#8A6E61] hover:bg-[#8A6E61]/20 rounded-lg transition duration-700 md:text-[18px] md:px-6 md:py-6"
+              className="mt-14 border border-neutral-900 bg-transparent text-neutral-900 hover:bg-neutral-900 hover:text-white rounded-full transition duration-300 text-[11px] md:text-[12px] px-10 py-3 tracking-[0.22em] uppercase"
             >
               Показать больше
             </Button>

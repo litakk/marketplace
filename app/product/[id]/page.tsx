@@ -1,323 +1,265 @@
-  "use client";
+"use client";
 
-  import { useParams } from "next/navigation";
-  import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ToastContainer, toast } from "react-toastify";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { ArrowRight } from "lucide-react";
 
-  import { useSession } from "next-auth/react";
-  import { Button } from "@/components/ui/button";
-  import { ArrowRight } from "lucide-react";
+import SwiperLogos from "@/app/components/SwiperLogos";
+import CategoryProducts from "@/app/components/CategoryProducts";
 
-  import { Skeleton } from "@/components/ui/skeleton";
+import "swiper/css";
 
-  import CategoryProducts from "@/app/components/CategoryProducts";
-  import SwiperLogos from "@/app/components/SwiperLogos";
-
-  import { ToastContainer, toast } from "react-toastify";
-
-  import { Swiper, SwiperSlide } from "swiper/react";
-
-  import "swiper/css";
-  import "swiper/css/effect-coverflow";
-  import "swiper/css/pagination";
-
-  interface Product {
-    id: number;
-    imageUrl: string | null;
+interface Product {
+  id: number;
+  imageUrl: string | null;
+  name: string;
+  description: string | null;
+  price: number;
+  stock: number;
+  category: {
     name: string;
-    description: string | null;
-    price: number;
-    stock: number;
-    category: {
-      name: string;
-    };
-  }
+  };
+}
 
-  interface ProductVariant {
-    id: number;
-    color: string;
-    size: string;
-    imageUrl: string | null;
-    price: number | null;
-    stock: number;
-    productId: number;
-  }
+interface ProductVariant {
+  id: number;
+  color: string;
+  size: string;
+  imageUrl: string | null;
+  price: number | null;
+  stock: number;
+  productId: number;
+}
 
-  const page: React.FC = () => {
-    const [product, setProduct] = useState<Product | null>(null);
-    const [allProducts, setAllProducts] = useState<Product[]>([]);
-    const [variants, setVariants] = useState<ProductVariant[]>([]);
-    const [selectedVariantId, setSelectedVariantId] = useState<number | null>(
-      null
-    );
-    const [quantity, setQuantity] = useState(1);
+const Page: React.FC = () => {
+  const [product, setProduct] = useState<Product | null>(null);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [variants, setVariants] = useState<ProductVariant[]>([]);
+  const [selectedVariantId, setSelectedVariantId] = useState<number | null>(
+    null
+  );
+  const [quantity, setQuantity] = useState(1);
 
-    function AddQuantity() {
-      setQuantity(quantity + 1);
-    }
+  const params = useParams();
+  const { data: session } = useSession();
 
-    function Decrement() {
-      setQuantity(quantity - 1);
-    }
+  const notifyTrue = () => toast.success("Added to cart!");
+  const notifyFalse = () => toast.error("Failed to add to cart!");
 
-    const params = useParams();
-    const { data: session } = useSession();
-
-    const notifyTrue = () => toast.success("Added to cart!");
-    const notifyFalse = () => toast.error("Failed to add to cart!");
-
-    useEffect(() => {
-      const getProduct = async () => {
-        try {
-          const res = await fetch("/api/products");
-          const data: Product[] = await res.json();
-
-          setAllProducts(data);
-          console.log(data);
-
-          const selectedProduct = data.find((p) => p.id === Number(params.id));
-          setProduct(selectedProduct ?? null);
-
-          if (selectedProduct) {
-            const resVariants = await fetch(
-              `/api/variants?productId=${selectedProduct.id}`
-            );
-            const variantsData: ProductVariant[] = await resVariants.json();
-
-            setVariants(variantsData);
-
-            if (variantsData.length > 0) {
-              setSelectedVariantId(variantsData[0].id);
-            }
-          }
-        } catch (error) {
-          console.log("Ошибка при получении данных:", error);
-        }
-      };
-      getProduct();
-    }, [params.id]);
-
-    const handleAddToCart = async () => {
+  useEffect(() => {
+    const getProduct = async () => {
       try {
-        if (!selectedVariantId) return;
+        const res = await fetch("/api/products");
+        const data: Product[] = await res.json();
+        setAllProducts(data);
 
-        const cart = await fetch("/api/cart/addCartProd", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            productId: product?.id,
-            variantId: selectedVariantId,
-            quantity: quantity,
-          }),
-        });
+        const selectedProduct = data.find((p) => p.id === Number(params.id));
+        setProduct(selectedProduct ?? null);
 
-        if (cart.ok) {
-          notifyTrue();
-        } else {
-          notifyFalse();
+        if (selectedProduct) {
+          const resVariants = await fetch(
+            `/api/variants?productId=${selectedProduct.id}`
+          );
+          const variantsData: ProductVariant[] = await resVariants.json();
+
+          setVariants(variantsData);
+          if (variantsData.length > 0) {
+            setSelectedVariantId(variantsData[0].id);
+          }
         }
       } catch (error) {
-        console.log(error);
+        console.log("Ошибка при получении данных:", error);
       }
     };
+    getProduct();
+  }, [params.id]);
 
-    if (!product) {
-      return (
-        <div className="flex flex-col space-y-3 p-6 items-center justify-center">
-          <div className="space-y-2">
-            <Skeleton className="h-5 w-[200px]" />
-          </div>
-          <Skeleton className="h-[384px] w-[345px] rounded-xl" />
-          <div className="space-y-2">
-            <Skeleton className="h-5 w-[200px]" />
-          </div>
-        </div>
-      );
+  const handleAddToCart = async () => {
+    try {
+      if (!selectedVariantId) return;
+      const cart = await fetch("/api/cart/addCartProd", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: product?.id,
+          variantId: selectedVariantId,
+          quantity: quantity,
+        }),
+      });
+      cart.ok ? notifyTrue() : notifyFalse();
+    } catch (error) {
+      console.log(error);
     }
-
-    return (
-      <div className="container mx-auto px-5 py-5">
-        <ToastContainer />
-        <p className="text-sm text-gray-600 mb-5">
-          Home / Shop / {product.category.name}
-        </p>
-
-        <div className="overflow-hidden">
-          <div>
-            <div className="flex items-center justify-center mb-5">
-              {/* Показываем изображение выбранного варианта, если есть, иначе основное */}
-              <img
-                src={
-                  variants.find((v) => v.id === selectedVariantId)?.imageUrl ||
-                  product.imageUrl ||
-                  undefined
-                }
-                alt={product.name}
-                className="max-h-96 w-full object-contain"
-              />
-            </div>
-
-            <div className="mb-3">
-              <h1 className="font-bold text-[22px] text-[#121717] ">
-                {product.name}
-              </h1>
-
-              <div className="mb-3">
-                <p className="text-gray-700 leading-relaxed">
-                  {product.description}
-                </p>
-              </div>
-
-              <div className="mb-2">
-                <p className="font-bold text-[18px] text-[#121717] mb-2">Price</p>
-                <p className="font-normal text-[16px] text-[#8A6E61] ">
-                  {/* Показываем цену варианта, если есть, иначе цену продукта */}
-                  $
-                  {variants.find((v) => v.id === selectedVariantId)?.price ??
-                    product.price}
-                </p>
-              </div>
-
-              {/* Выбор варианта */}
-              {variants.length > 0 && (
-                <div className="mb-5">
-                  <p className="font-bold text-[18px] text-[#121717] mb-2">
-                    Варианты
-                  </p>
-
-                  <select
-                    className="border border-gray-300 rounded px-3 py-2"
-                    value={selectedVariantId ?? ""}
-                    onChange={(e) => setSelectedVariantId(Number(e.target.value))}
-                  >
-                    {variants.map((variant) => (
-                      <option key={variant.id} value={variant.id}>
-                        {variant.color} / {variant.size} —{" "}
-                        {variant.price ? `$${variant.price}` : `Базовая цена`}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              <div>
-                <p className="font-bold text-[18px] text-[#121717] mb-2">
-                  Quantity
-                </p>
-              </div>
-
-              <div className="flex justify-between mb-5">
-                <div>
-                  <p className="font-normal text-[16px] text-[#121717] mb-2">
-                    Quantity
-                  </p>
-                </div>
-
-                <div className="flex items-center">
-                  <button
-                    onClick={Decrement}
-                    className="flex items-center bg-[#F0F5F5] p-2 rounded-full w-7 h-7 "
-                  >
-                    -
-                  </button>
-                  <span className="px-3 py-1">{quantity}</span>
-                  <button
-                    onClick={AddQuantity}
-                    className="flex items-center bg-[#F0F5F5] p-2 rounded-full w-7 h-7 "
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
-              <div className="">
-                {session ? (
-                  <button
-                    onClick={handleAddToCart}
-                    className="w-full h-auto lg:w-[200px] bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-md font-medium transition-colors"
-                  >
-                    Add to Cart
-                  </button>
-                ) : (
-                  <a href="/register">
-                    <button className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-md font-medium transition-colors">
-                      Register or Login for buy something
-                    </button>
-                  </a>
-                )}
-              </div>
-
-              <div className="border-t  pt-4 lg:border-none">
-                <p className="text-sm text-gray-500">
-                  Category:{" "}
-                  <span className="font-medium text-gray-700">
-                    {product.category.name}
-                  </span>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <p className="mt-5 mb-5 md:mt-7 md-mb-7 2xl:mt-10 2xl:mb-10 2xl:text-2xl font-bold">
-          Похожие товары из категории "{product.category.name}"
-        </p>
-
-        <Swiper
-          spaceBetween={20}
-          slidesPerView={1}
-          breakpoints={{
-            320: {
-              slidesPerView: 2,
-            },
-            480: {
-              slidesPerView: 4,
-            },
-            768: {
-              slidesPerView: 4,
-            },
-            1024: {
-              slidesPerView: 5,
-            },
-            1280: {
-              slidesPerView: 5,
-            },
-          }}
-          className="mySwiper px-2"
-        >
-          {allProducts
-            .filter((p) => p.category.name === product.category.name)
-            .map((Allprod) => (
-              <SwiperSlide key={Allprod.id}>
-                <div className="p-2 bg-white rounded-lg shadow-sm">
-                  <img
-                    src={Allprod.imageUrl || undefined}
-                    alt={Allprod.name}
-                    className="w-full h-[240px] lg:h-[300px] object-cover rounded-[8px]"
-                  />
-                  <p className="font-medium text-[16px] text-[#171212] mt-2">
-                    {Allprod.name}
-                  </p>
-                  <p className="font-normal text-[14px] text-[#8A6E61] mb-2">
-                    ${Allprod.price}
-                  </p>
-                  <Button className="flex items-center gap-2 bg-[#8A6E61] text-white hover:bg-[#6c5247] text-sm px-4 py-2 rounded-lg transition duration-300">
-                    <a href={`/product/${Allprod.id}`}>Перейти к товару</a>
-                    <ArrowRight size={18} />
-                  </Button>
-                </div>
-              </SwiperSlide>
-            ))}
-        </Swiper>
-
-        <div>
-          <SwiperLogos />
-        </div>
-
-        <div className="mt-5">
-          <CategoryProducts />
-        </div>
-      </div>
-    );
   };
 
-  export default page;
+  if (!product) {
+    return (
+      <div className="flex flex-col items-center space-y-4 p-6">
+        <Skeleton className="h-5 w-[200px]" />
+        <Skeleton className="h-[300px] w-[250px]" />
+        <Skeleton className="h-5 w-[200px]" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto px-5 py-10">
+      <ToastContainer />
+      <p className="text-[13px] md:text-[14px] tracking-wide text-neutral-500 mb-6">
+        Home / Shop / {product.category.name}
+      </p>
+
+      {/* Блок товара */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        {/* Картинка товара */}
+        <div className="flex items-center justify-center">
+          <img
+            src={
+              variants.find((v) => v.id === selectedVariantId)?.imageUrl ||
+              product.imageUrl ||
+              ""
+            }
+            alt={product.name}
+            className="w-full max-w-[400px] sm:max-w-[500px] max-h-[300px] sm:max-h-[500px] object-cover border border-neutral-200"
+          />
+        </div>
+
+        {/* Описание товара */}
+        <div className="space-y-6">
+          <h1 className="text-[20px] md:text-[24px] font-semibold tracking-wide text-neutral-900">
+            {product.name}
+          </h1>
+          <p className="text-[14px] md:text-[15px] text-neutral-600 leading-relaxed">
+            {product.description}
+          </p>
+          <p className="text-[16px] md:text-[18px] font-semibold text-neutral-900">
+            $
+            {variants.find((v) => v.id === selectedVariantId)?.price ??
+              product.price}
+          </p>
+
+          {/* Варианты */}
+          {variants.length > 0 && (
+            <div>
+              <p className="text-[13px] uppercase tracking-[0.22em] mb-2 text-neutral-700">
+                Варианты
+              </p>
+              <select
+                className="border border-neutral-300 text-[14px] px-3 py-2 rounded-md w-full"
+                value={selectedVariantId ?? ""}
+                onChange={(e) => setSelectedVariantId(Number(e.target.value))}
+              >
+                {variants.map((variant) => (
+                  <option key={variant.id} value={variant.id}>
+                    {variant.color} / {variant.size} —{" "}
+                    {variant.price ? `$${variant.price}` : "Базовая цена"}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Количество */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              className="flex items-center justify-center border border-neutral-300 w-8 h-8 rounded-full"
+            >
+              -
+            </button>
+            <span className="text-[14px]">{quantity}</span>
+            <button
+              onClick={() => setQuantity((q) => q + 1)}
+              className="flex items-center justify-center border border-neutral-300 w-8 h-8 rounded-full"
+            >
+              +
+            </button>
+          </div>
+
+          {/* Кнопка */}
+          {session ? (
+            <Button
+              onClick={handleAddToCart}
+              className="w-full md:w-auto bg-black text-white hover:bg-neutral-900 px-8 py-3 rounded-full uppercase tracking-[0.22em] text-[12px]"
+            >
+              Add to Cart
+            </Button>
+          ) : (
+            <a href="/register">
+              <Button className="bg-black text-white hover:bg-neutral-900 px-8 py-3 rounded-full uppercase tracking-[0.22em] text-[12px]">
+                Register / Login
+              </Button>
+            </a>
+          )}
+
+          <p className="text-[13px] text-neutral-500">
+            Category:{" "}
+            <span className="text-neutral-900 font-medium">
+              {product.category.name}
+            </span>
+          </p>
+        </div>
+      </div>
+
+      {/* Похожие товары */}
+      <p className="mt-14 mb-10 text-center text-[14px] md:text-[16px] tracking-[0.28em] uppercase text-neutral-900">
+        Похожие товары из категории "{product.category.name}"
+      </p>
+      <Swiper
+        spaceBetween={20}
+        slidesPerView={1}
+        breakpoints={{
+          480: { slidesPerView: 2 },
+          768: { slidesPerView: 3 },
+          1024: { slidesPerView: 4 },
+        }}
+        className="px-2"
+      >
+        {allProducts
+          .filter((p) => p.category.name === product.category.name)
+          .map((Allprod) => (
+            <SwiperSlide key={Allprod.id}>
+              <div className="bg-white border border-neutral-200 hover:shadow-sm transition duration-300">
+                <img
+                  src={Allprod.imageUrl || ""}
+                  alt={Allprod.name}
+                  className="w-full aspect-[3/4] object-cover"
+                />
+                <div className="p-3">
+                  <p className="text-[13px] md:text-[14px] tracking-wide text-neutral-900">
+                    {Allprod.name}
+                  </p>
+                  <p className="text-[13px] md:text-[14px] text-neutral-600 mb-2">
+                    ${Allprod.price}
+                  </p>
+                  <a
+                    href={`/product/${Allprod.id}`}
+                    className="flex items-center justify-center gap-2"
+                  >
+                    <Button className="w-full h-9 rounded-full bg-black text-white hover:bg-neutral-900 text-[12px] tracking-wider uppercase">
+                      Подробнее <ArrowRight size={16} />
+                    </Button>
+                  </a>
+                </div>
+              </div>
+            </SwiperSlide>
+          ))}
+      </Swiper>
+
+      <div className="mt-16">
+        <SwiperLogos />
+      </div>
+
+      <div className="mt-16">
+        <CategoryProducts />
+      </div>
+    </div>
+  );
+};
+
+export default Page;
