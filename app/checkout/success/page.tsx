@@ -1,8 +1,8 @@
-// app/checkout/success/page.tsx
 import prisma from "@/lib/prisma";
 import { CheckCircle } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth";
 
 export default async function SuccessPage({
   searchParams,
@@ -13,7 +13,28 @@ export default async function SuccessPage({
 
   if (!orderId) redirect("/");
 
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) redirect("/login");
+
+  // Подтверждаем заказ и чистим корзину сервер-сайд (надёжнее, чем внутренний fetch)
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true },
+    });
+
+    if (user) {
+      await prisma.order.update({
+        where: { id: Number(orderId), userId: user.id },
+        data: { status: "PROCESSING" },
+      });
+
+      await prisma.cartItem.deleteMany({ where: { userId: user.id } });
+    }
+  } catch (_) {
+    // игнорируем сбои подтверждения, страница успеха всё равно отобразится
+  }
+
   const order = await prisma.order.findUnique({
     where: { id: Number(orderId) },
   });
