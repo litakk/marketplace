@@ -85,11 +85,7 @@ const SubTotalAside: React.FC<SubTotalAsideProps> = ({
 
         <Button
           disabled={!stripe || loading}
-          onClick={handleSubmit(async (data) => {
-            onSubmit(data);
-            await handleConfirm(data);
-          })}
-          type="button"
+          type="submit"
           className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-md transition disabled:bg-gray-400"
         >
           {!loading

@@ -108,12 +108,40 @@ export default function OrderGoods({
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: any) => {
     if (!agree) {
       toast.warn("Поставьте галочку согласия с условиями");
       return;
     }
-    toast.info("Макет: здесь будет создание и подтверждение платежа Stripe");
+
+    try {
+      // Сохраняем адрес заказа
+      const addressResponse = await fetch("/api/order/address", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId: order.id,
+          address: {
+            fullName: data.fullName,
+            email: data.email,
+            phone: data.phone,
+            address: data.address,
+            city: data.city,
+            region: data.region,
+            postalCode: data.postalCode,
+          },
+        }),
+      });
+
+      if (!addressResponse.ok) {
+        throw new Error("Ошибка сохранения адреса");
+      }
+
+      toast.success("Адрес сохранен!");
+    } catch (error) {
+      console.error("Ошибка:", error);
+      toast.error("Ошибка при сохранении адреса");
+    }
   };
 
   useEffect(() => {
@@ -140,7 +168,7 @@ export default function OrderGoods({
         <div className="px-3 md:px-6 lg:px-8 py-8">
           <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Форма */}
-            <form className="lg:col-span-2 space-y-6">
+            <form className="lg:col-span-2 space-y-6" onSubmit={handleSubmit(onSubmit)}>
               {/* Контактные данные */}
               <section className="rounded-2xl border border-gray-200 bg-white shadow-md p-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">
