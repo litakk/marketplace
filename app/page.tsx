@@ -87,7 +87,7 @@ export default async function Home() {
         <Swiper />
       </div>
       <div className="mt-[30px] mb-[30px]">
-        <p className="font-bold text-[22px]">Shop by Clothes</p>
+        <p className="font-bold text-[22px]">Clothing Collection</p>
       </div>
       <div>
         <CategoryProducts />

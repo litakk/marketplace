@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(
-  _req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: Request, context: any) {
   try {
-    const categoryIdNum = Number(params.id);
+    const { id } = context.params;
+
+    const categoryIdNum = Number(id);
     if (!Number.isFinite(categoryIdNum)) {
-      return NextResponse.json({ error: "Invalid category id" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid category id" },
+        { status: 400 }
+      );
     }
 
     const products = await prisma.product.findMany({
@@ -31,5 +33,3 @@ export async function GET(
     return NextResponse.json({ error: "Ошибка сервера" }, { status: 500 });
   }
 }
-
-
