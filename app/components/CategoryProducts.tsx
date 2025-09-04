@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface Categories {
@@ -12,6 +13,7 @@ interface Categories {
 const CategoryProducts: React.FC = () => {
   const [categories, setCategories] = useState<Categories[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const getCategories = async () => {
@@ -53,16 +55,20 @@ const CategoryProducts: React.FC = () => {
     <>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {categories.map((item) => (
-          <div key={item.id}>
+          <button
+            key={item.id}
+            onClick={() => router.push(`/category/${item.id}`)}
+            className="text-left group"
+          >
             <img
               src={item.imageUrl}
               alt={item.name}
-              className="w-full h-[240px] lg:h-[366px] object-cover rounded-[8px]"
+              className="w-full h-[240px] lg:h-[366px] object-cover rounded-[8px] transition-transform group-hover:scale-[1.01]"
             />
             <p className="font-medium lg:text-xl text-[#171212] mt-1">
               {item.name}
             </p>
-          </div>
+          </button>
         ))}
       </div>
     </>
