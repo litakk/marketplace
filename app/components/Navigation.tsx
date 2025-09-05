@@ -17,7 +17,7 @@ interface NavItem {
 
 const navItem: NavItem[] = [
   { label: "Home", href: "/", icon: GoHome },
-  { label: "Shop", href: "/shop", icon: CiSearch },
+  { label: "Shop", href: "/#categories", icon: CiSearch },
   { label: "Cart", href: "/cart", icon: BsCart3 },
   { label: "Profile", href: "/profile", icon: PiUserLight },
 ];

@@ -41,7 +41,7 @@ const Header: React.FC<Props> = () => {
         <div className="flex">
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="flex items-center space-x-3 mb-6">
+              <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 bg-black dark:bg-white rounded-lg flex items-center justify-center">
                   <span className="text-white dark:text-black font-bold text-sm">
                     M
@@ -163,11 +163,11 @@ const Header: React.FC<Props> = () => {
                     <span className="text-red-500">Выйти</span>
                   </DropdownMenuItem>
                 ) : (
-                    <Link href={"/login"} className="text-green-500">
-                  <DropdownMenuItem>
+                  <Link href={"/login"} className="text-green-500">
+                    <DropdownMenuItem>
                       <div>Войти</div>
-                  </DropdownMenuItem>
-                    </Link>
+                    </DropdownMenuItem>
+                  </Link>
                 )}
               </DropdownMenuContent>
             </DropdownMenu>

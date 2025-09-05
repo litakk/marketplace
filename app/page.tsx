@@ -86,7 +86,7 @@ export default async function Home() {
       <div className="mt-5">
         <Swiper />
       </div>
-      <div className="mt-[30px] mb-[30px]">
+      <div className="mt-[30px] mb-[30px]" id="categories">
         <p className="font-bold text-[22px]">Clothing Collection</p>
       </div>
       <div>
