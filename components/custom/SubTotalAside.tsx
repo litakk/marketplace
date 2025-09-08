@@ -1,8 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Tag } from "lucide-react";
-import { Input } from "../ui/input";
 import { useState } from "react";
 import { useElements, useStripe } from "@stripe/react-stripe-js";
 
@@ -40,7 +38,7 @@ const SubTotalAside: React.FC<SubTotalAsideProps> = ({
       await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `http://localhost:3000/checkout/success?orderId=${order.id}`,
+          return_url: `https://marketplace-9pr6.vercel.app//checkout/success?orderId=${order.id}`,
         },
       });
     } catch {
@@ -70,7 +68,7 @@ const SubTotalAside: React.FC<SubTotalAsideProps> = ({
               {shipping.toLocaleString("ru-RU")} USD
             </span>
           </div>
-          <div className="h-px bg-gray-200" /> 
+          <div className="h-px bg-gray-200" />
           <div className="flex justify-between text-base font-semibold">
             <span>Итого</span>
             <span className="text-blue-600">
