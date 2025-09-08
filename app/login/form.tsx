@@ -54,21 +54,13 @@ export default function Form() {
       })}
       className="space-y-7"
     >
-      <div className="grid grid-cols-2 gap-3">
         <button
           type="button"
           onClick={() => signIn("google")}
-          className="h-11 rounded-lg border border-black/10 bg-white text-gray-900 hover:bg-gray-50 transition dark:border-white/10 dark:bg-neutral-900 dark:text-white"
+          className="w-full h-11 rounded-lg border border-black/10 bg-white text-gray-900 hover:bg-gray-50 transition dark:border-white/10 dark:bg-neutral-900 dark:text-white"
         >
           Google
         </button>
-        <button
-          type="button"
-          className="h-11 rounded-lg border border-black/10 bg-black text-white hover:bg-neutral-900 transition dark:bg-white dark:text-black dark:hover:bg-neutral-100"
-        >
-          Apple
-        </button>
-      </div>
 
       <div className="relative text-center">
         <span className="px-3 text-xs text-muted-foreground bg-card relative z-10">

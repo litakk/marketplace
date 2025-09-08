@@ -6,13 +6,23 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const q = searchParams.get("q") || "";
 
+    const terms = q
+      .split(" ")
+      .map((t) => t.replace(/\$/g, "").trim())
+      .filter(Boolean);
+
     const products = await prisma.product.findMany({
       where: {
-        OR: [
-          { name: { contains: q, mode: "insensitive" } },
-          { description: { contains: q, mode: "insensitive" } },
-          { category: { name: { contains: q, mode: "insensitive" } } },
-        ],
+        AND: terms.map((term) => ({
+          OR: [
+            { name: { contains: term, mode: "insensitive" } },
+            { description: { contains: term, mode: "insensitive" } },
+            { category: { name: { contains: term, mode: "insensitive" } } },
+            ...(Number(term)
+              ? [{ variants: { some: { price: Number(term) } } }]
+              : []),
+          ],
+        })),
       },
       include: { category: true, variants: true },
       take: 20,

@@ -4,6 +4,7 @@ import { compare } from "bcrypt";
 import { PrismaClient } from "@prisma/client";
 import type { AuthOptions, SessionStrategy } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import AppleProvider from "next-auth/providers/apple";
 import type { JWT } from "next-auth/jwt";
 import type { Session, User } from "next-auth";
 import type { NextAuthOptions } from "next-auth";
@@ -53,6 +54,10 @@ const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+    AppleProvider({
+      clientId: process.env.APPLE_CLIENT_ID!,
+      clientSecret: process.env.APPLE_CLIENT_SECRET!,
     }),
   ],
   pages: {
