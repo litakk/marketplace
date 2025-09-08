@@ -1,37 +1,22 @@
-"use client";
-import { useState } from "react";
-import AddCategories from "./components/AddCategories";
-
-const Admin: React.FC = () => {
-  const [isOpen, setOpen] = useState(false);
-
+export default function AdminHome() {
   return (
-    <div className="min-h-screen bg-gray-100 py-12 px-6">
-      <div className="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg">
-        <h1 className="text-4xl font-bold text-center mb-6 text-gray-800">
-          🛠️ Admin Panel
-        </h1>
-
-        <div className="flex justify-center gap-6 mb-8">
-          <a
-            href="/admin/add-product"
-            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-          >
-            ➕ Добавить товар
-          </a>
-
-          <button
-            onClick={() => setOpen(true)}
-            className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
-          >
-            🗂️ Добавить категорию
-          </button>
-        </div>
-
-        {isOpen && <AddCategories setOpen={setOpen} />}
-      </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <a href="/admin/products" className="p-4 rounded border bg-white hover:shadow">
+        <div className="text-sm text-gray-500">Раздел</div>
+        <div className="text-lg font-semibold">Товары</div>
+      </a>
+      <a href="/admin/categories" className="p-4 rounded border bg-white hover:shadow">
+        <div className="text-sm text-gray-500">Раздел</div>
+        <div className="text-lg font-semibold">Категории</div>
+      </a>
+      <a href="/admin/orders" className="p-4 rounded border bg-white hover:shadow">
+        <div className="text-sm text-gray-500">Раздел</div>
+        <div className="text-lg font-semibold">Заказы</div>
+      </a>
+      <a href="/admin/users" className="p-4 rounded border bg-white hover:shadow">
+        <div className="text-sm text-gray-500">Раздел</div>
+        <div className="text-lg font-semibold">Пользователи</div>
+      </a>
     </div>
   );
-};
-
-export default Admin;
+}

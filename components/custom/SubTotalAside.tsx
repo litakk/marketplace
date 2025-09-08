@@ -26,7 +26,7 @@ const SubTotalAside: React.FC<SubTotalAsideProps> = ({
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleConfirm = async (data: any) => {
+  const handlePay = async () => {
     setLoading(true);
     setErrorMessage(null);
     if (!stripe || !elements) {
@@ -35,14 +35,31 @@ const SubTotalAside: React.FC<SubTotalAsideProps> = ({
       return;
     }
     try {
+      // 1) валидируем и сохраняем адрес через форму родителя
+      await new Promise<void>((resolve, reject) => {
+        const runner = handleSubmit(async (data: any) => {
+          try {
+            await onSubmit(data);
+            resolve();
+          } catch (e) {
+            reject(e);
+          }
+        });
+        // запускаем без события
+        // @ts-ignore
+        runner();
+      });
+
+      // 2) подтверждаем платёж и редиректим на success
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
       await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `http://localhost:3000/checkout/success?orderId=${order.id}`,
+          return_url: `${origin}/checkout/success?orderId=${order.id}`,
         },
       });
-    } catch {
-      setErrorMessage("Ошибка сети");
+    } catch (err: any) {
+      setErrorMessage(err?.message || "Ошибка сети");
     } finally {
       setLoading(false);
     }
@@ -83,7 +100,8 @@ const SubTotalAside: React.FC<SubTotalAsideProps> = ({
 
         <Button
           disabled={!stripe || loading}
-          type="submit"
+          type="button"
+          onClick={handlePay}
           className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-md transition disabled:bg-gray-400"
         >
           {!loading
