@@ -11,12 +11,17 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
+  // Если пользователь заблокирован и не на странице /blocked
+  if (token.isBlocked && pathname !== "/blocked") {
+    return NextResponse.redirect(new URL("/blocked", req.url));
+  }
+
   // Проверка доступа к админке
   if (pathname.startsWith("/admin") && token.role !== "ADMIN") {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
-  // Авторизован и (либо обычный роут, либо админ с правами)
+  // Всё ок — продолжаем
   return NextResponse.next();
 }
 
@@ -27,5 +32,6 @@ export const config = {
     "/checkout/:path*",
     "/orders/:path*",
     "/basket/:path*",
+    "/blocked", // тоже обрабатываем (чтобы не было циклов редиректа)
   ],
 };
