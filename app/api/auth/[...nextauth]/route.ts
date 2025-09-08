@@ -71,6 +71,7 @@ const authOptions: NextAuthOptions = {
       if (user) {
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email! },
+          select: { id: true, role: true, isBlocked: true },
         });
 
         if (!existingUser) {
@@ -80,25 +81,36 @@ const authOptions: NextAuthOptions = {
               name: user.name,
               role: "USER",
             },
+            select: { id: true, role: true, isBlocked: true },
           });
 
           token.id = String(newUser.id);
           token.role = newUser.role;
+          token.isBlocked = newUser.isBlocked;
         } else {
           token.id = String(existingUser.id);
           token.role = existingUser.role;
+          token.isBlocked = existingUser.isBlocked;
+        }
+      } else if (token?.id) {
+        // обновляем isBlocked на каждой валидации токена, чтобы блок сразу применился
+        const existingUser = await prisma.user.findUnique({
+          where: { id: Number(token.id) },
+          select: { isBlocked: true, role: true },
+        });
+        if (existingUser) {
+          token.isBlocked = existingUser.isBlocked;
+          token.role = existingUser.role;
         }
       }
-      console.log("JWT CALLBACK: ", { token, user });
 
       return token;
     },
     async session({ session, token }: { session: Session; token: JWT }) {
-      console.log("SESSION CALLBACK: ", { session, token });
-
       if (token?.id) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
+        session.user.isBlocked = (token as any).isBlocked as boolean | null;
       }
       return session;
     },

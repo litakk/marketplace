@@ -9,6 +9,7 @@ declare module "next-auth" {
     user: DefaultSession["user"] & {
       id: string;
       role?: string | null; // role может быть null или отсутствовать
+      isBlocked?: boolean | null;
     };
   }
 }
@@ -17,5 +18,6 @@ declare module "next-auth/jwt" {
   interface JWT extends DefaultJWT {
     id?: string; // id тоже может быть отсутствующим
     role?: string | null;
+    isBlocked?: boolean | null;
   }
 }
