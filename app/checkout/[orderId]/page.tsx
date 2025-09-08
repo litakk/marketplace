@@ -52,7 +52,7 @@ export default async function Page({
     },
   });
 
-  const shipping = 10_000;
+  const shipping = order.totalPrice < 500 ? 50 : 0;
   const total = order.totalPrice + shipping;
 
   return (

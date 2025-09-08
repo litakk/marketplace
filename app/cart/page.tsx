@@ -98,8 +98,12 @@ const Cart: React.FC = () => {
     0
   );
 
-  const shipping = subtotal > 50 ? 0 : 5.99;
+  const FREE_SHIPPING_THRESHOLD = 500;
+  const SHIPPING_FEE = 50;
+
+  const shipping = subtotal < FREE_SHIPPING_THRESHOLD ? SHIPPING_FEE : 0;
   const total = subtotal + shipping;
+  const needMore = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
 
   const handleCheckout = async () => {
     try {
@@ -124,7 +128,7 @@ const Cart: React.FC = () => {
     }
   };
 
-  return ( 
+  return (
     <div className="min-h-screen bg-neutral-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Заголовок */}
@@ -263,9 +267,7 @@ const Cart: React.FC = () => {
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-neutral-600">Subtotal</span>
-                    <span className="font-medium">
-                      ${subtotal.toFixed(2)}
-                    </span>
+                    <span className="font-medium">${subtotal.toFixed(2)}</span>
                   </div>
 
                   <div className="flex justify-between text-sm">
@@ -277,7 +279,7 @@ const Cart: React.FC = () => {
 
                   {shipping > 0 && (
                     <div className="text-xs text-neutral-500 bg-neutral-50 p-3 rounded-xl">
-                      Add ${(50 - subtotal).toFixed(2)} more for free shipping
+                      Add ${needMore.toFixed(2)} more for free shipping
                     </div>
                   )}
 
